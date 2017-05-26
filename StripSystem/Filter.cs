@@ -16,7 +16,7 @@ namespace StripSystem
 
         public string Name => "Join-Part Filter";
 
-        public string Version => "1";
+        public string Version => "2";
 
         public string Email => "";
 
@@ -33,6 +33,7 @@ namespace StripSystem
         }
 
         private Dictionary<string, UserData> userDatabase;
+        private string ColourCode = "8"; //ascii char 3 is included at the start of this string but not clearly visible in VS Editor
 
         public Filter()
         {
@@ -127,7 +128,7 @@ namespace StripSystem
                 {
                     Return = EatData.EatAll;
 
-                    var newMessage = $":{user.Nick}!{user.Ident}@{user.Host} PRIVMSG {channel.Name} :{message} (logged in {userData.TimeSinceJoin()} ago)";
+                    var newMessage = $":{user.Nick}!{user.Ident}@{user.Host} PRIVMSG {channel.Name} :{message} {ColourCode}(logged in {userData.TimeSinceJoin()} ago)";
                     server.SendFakeRaw(newMessage);
 
                     userData.AnnouncedJoin = true;
