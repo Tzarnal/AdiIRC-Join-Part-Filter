@@ -16,7 +16,7 @@ namespace StripSystem
 
         public string Name => "Join-Part Filter";
 
-        public string Version => "2";
+        public string Version => "3";
 
         public string Email => "";
 
