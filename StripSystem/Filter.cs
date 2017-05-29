@@ -46,8 +46,48 @@ namespace StripSystem
             // Suscribe to delegates here
             _myHost.OnJoin += myHost_OnJoin;
             _myHost.OnPart += myHost_OnPart;
-            _myHost.OnQuit += myHost_OnQuit;
+            _myHost.OnQuit += myHost_OnQuit;            
             _myHost.OnMessage += myHost_OnMessage;
+            _myHost.OnNick += myHost_OnNick;
+            _myHost.OnMode += myHost_OnMode;
+        }
+
+        private void myHost_OnMode(IServer server, IChannel channel, IUser user, string mode, out EatData Return)
+        {
+            if (user == null || string.IsNullOrEmpty(user.Ident))
+            {
+                Return = EatData.EatNone;
+                return;
+            }
+
+            Return = EatData.EatText;
+            var userKey = server.Network + channel.Name + user.Ident + user.Host;
+
+            if (!userDatabase.ContainsKey(userKey)) return;
+
+            var userData = userDatabase[userKey];
+            if (userData.TalkedRecently())
+            {
+                Return = EatData.EatNone;
+            }
+        }
+
+        private void myHost_OnNick(IServer server, IUser user, string newNick, out EatData Return)
+        {
+            Return = EatData.EatText;
+
+            foreach (IChannel channel in server.GetChannels)
+            {
+                var userKey = server.Network + channel.Name + user.Ident + user.Host;
+
+                if (!userDatabase.ContainsKey(userKey)) continue;
+
+                var userData = userDatabase[userKey];
+                if (!userData.TalkedRecently()) continue;
+
+                Return = EatData.EatNone;
+                return;
+            }
         }
 
         void myHost_OnQuit(IServer server, IUser user, string data, out EatData Return)
