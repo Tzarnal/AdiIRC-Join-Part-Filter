@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using AdiIRCAPI; // Include the API
 
@@ -54,10 +56,36 @@ namespace StripSystem
 
         private void myHost_OnMode(IServer server, IChannel channel, IUser user, string mode, out EatData Return)
         {
-            if (user == null || string.IsNullOrEmpty(user.Ident))
+            if (string.IsNullOrEmpty(user?.Ident))
             {
-                Return = EatData.EatNone;
-                return;
+                var modeRegex = @"\+. (\w+)";
+                var modeResult = Regex.Match(mode, modeRegex);
+
+                string userName;
+
+                if (modeResult.Success)
+                {
+                    userName = modeResult.Groups[1].ToString();
+                }
+                else
+                {
+                    Return = EatData.EatNone;
+                    return;
+                }
+
+                foreach (IUser channelUser in channel.GetUsers)
+                {
+                    if (channelUser.Nick == userName)
+                    {
+                        user = channelUser;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(user?.Ident))
+                {
+                    Return = EatData.EatNone;
+                    return;
+                }
             }
 
             Return = EatData.EatText;
