@@ -58,7 +58,7 @@ namespace StripSystem
         {
             if (string.IsNullOrEmpty(user?.Ident))
             {
-                var modeRegex = @"\+. (\w+)";
+                var modeRegex = @"[+-]. (\w+)";
                 var modeResult = Regex.Match(mode, modeRegex);
 
                 string userName;
