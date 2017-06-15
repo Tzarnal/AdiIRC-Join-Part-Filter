@@ -83,8 +83,12 @@ namespace StripSystem
 
                 if (string.IsNullOrEmpty(user?.Ident))
                 {
-                    Return = EatData.EatNone;
-                    return;
+                    //Twitch has a nasty habit of showing mode removal after a user has left the channel. 
+                    if (!server.Network.ToLower().Contains("twitch"))
+                    {
+                        Return = EatData.EatNone;
+                        return;
+                    }                        
                 }
             }
 
