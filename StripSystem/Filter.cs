@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
-using AdiIRCAPI; // Include the API
+using AdiIRCAPIv2.Enumerators;
+using AdiIRCAPIv2.Interfaces;
+
+// Include the API
 
 namespace StripSystem
 {
     public class Filter : IPlugin // Reference this is a plugin
     {
         IPluginHost _myHost = null;
-        ITools _myTools = null;
+
 
         public string Description => "Filters join/part messages.";
 
@@ -28,11 +29,6 @@ namespace StripSystem
             set { _myHost = value; }
         }
 
-        public ITools Tools
-        {
-            get { return _myTools; }
-            set { _myTools = value; }
-        }
 
         private Dictionary<string, UserData> userDatabase;
         private string ColourCode = "8"; //ascii char 3 is included at the start of this string but not clearly visible in VS Editor
@@ -46,12 +42,7 @@ namespace StripSystem
         {
             // This is called when the plugin is loaded
             // Suscribe to delegates here
-            _myHost.OnJoin += myHost_OnJoin;
-            _myHost.OnPart += myHost_OnPart;
-            _myHost.OnQuit += myHost_OnQuit;            
-            _myHost.OnMessage += myHost_OnMessage;
-            _myHost.OnNick += myHost_OnNick;
-            _myHost.OnMode += myHost_OnMode;
+
         }
 
         private void myHost_OnMode(IServer server, IChannel channel, IUser user, string mode, out EatData Return)

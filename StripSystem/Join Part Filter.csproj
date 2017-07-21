@@ -51,9 +51,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AdiIRCAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\AdiIRC\API\bin\Release\AdiIRCAPI.dll</HintPath>
+    <Reference Include="AdiIRCAPIv2">
+      <HintPath>C:\Users\moonw\AppData\Local\AdiIRC\AdiIRCAPIv2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
