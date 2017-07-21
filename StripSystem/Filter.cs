@@ -45,8 +45,6 @@ namespace StripSystem
             Host.OnChannelMode += OnChannelMode;
         }
 
-
-
         private void OnChannelNormalMessage(ChannelNormalMessageArgs argument)
         {                        
             //sometimes ( mostly twitch ) user ident or host is not yet known even though a message was received
@@ -154,7 +152,6 @@ namespace StripSystem
             }
         }
 
-
         private void OnChannelMode(ChannelModeArgs argument)
         {
             var user = argument.User;
@@ -207,88 +204,7 @@ namespace StripSystem
                 argument.EatData = EatData.EatNone;
             }
         }
-
-        private void OnMode(IServer server, IChannel channel, IUser user, string mode, out EatData Return)
-        {
-            if (string.IsNullOrEmpty(user?.Ident))
-            {
-                var modeRegex = @"[+-]. (\w+)";
-                var modeResult = Regex.Match(mode, modeRegex);
-
-                string userName;
-
-                if (modeResult.Success)
-                {
-                    userName = modeResult.Groups[1].ToString();
-                }
-                else
-                {
-                    Return = EatData.EatNone;
-                    return;
-                }
-
-                foreach (IUser channelUser in channel.GetUsers)
-                {
-                    if (channelUser.Nick == userName)
-                    {
-                        user = channelUser;
-                    }
-                }
-
-                if (string.IsNullOrEmpty(user?.Ident))
-                {
-                    //Twitch has a nasty habit of showing mode removal after a user has left the channel. 
-                    if (!server.Network.ToLower().Contains("twitch"))
-                    {
-                        Return = EatData.EatNone;
-                        return;
-                    }                        
-                }
-            }
-
-            Return = EatData.EatText;
-            var userKey = server.Network + channel.Name + user.Ident + user.Host;
-
-            if (!userDatabase.ContainsKey(userKey)) return;
-
-            var userData = userDatabase[userKey];
-            if (userData.TalkedRecently())
-            {
-                Return = EatData.EatNone;
-            }
-        }
-
-        private void OnNick(IServer server, IUser user, string newNick, out EatData Return)
-        {
-            Return = EatData.EatText;
-        }
-
-        private void OnQuit(IServer server, IUser user, string data, out EatData Return)
-        {
-            Return = EatData.EatText;
-
-        }
-
-        private void OnPart(IServer server, IChannel channel, IUser user, string partMessage, out EatData Return)
-        {
-            Return = EatData.EatText;
-          
-        }
-
-        private void OnJoin(IServer server, IChannel channel, IUser user, out EatData Return)
-        {
-            Return = EatData.EatText;
-
-            
-        }
-
-        private void OnMessage(IServer server, IChannel channel, IUser user, string message, out EatData Return)
-        {            
-            Return = EatData.EatNone;
-
-
-        }
-
+        
         public void Dispose()
         {
         }
