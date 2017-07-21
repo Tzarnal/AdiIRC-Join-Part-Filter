@@ -70,6 +70,7 @@ namespace StripSystem
 
                     var newMessage = $":{user.Nick}!{user.Ident}@{user.Host} PRIVMSG {channel.Name} :{message} {ColourCode}(logged in {userData.TimeSinceJoin()} ago)";
                     argument.Server.SendFakeRaw(newMessage);
+                    argument.EatData = EatData.EatText;
 
                     userData.AnnouncedJoin = true;
                 }
