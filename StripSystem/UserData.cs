@@ -13,7 +13,7 @@ namespace StripSystem
         {
             var timeDiff = (DateTime.Now - LastMessage).TotalSeconds;
 
-            return !(timeDiff > 600);
+            return timeDiff < 600;
         }
 
         public void Rejoined()
