@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StripSystem
+namespace JoinPartFilter
 {
     class UserData
     {

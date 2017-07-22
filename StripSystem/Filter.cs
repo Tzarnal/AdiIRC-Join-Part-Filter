@@ -8,41 +8,41 @@ using AdiIRCAPIv2.Arguments.Contextless;
 using AdiIRCAPIv2.Enumerators;
 using AdiIRCAPIv2.Interfaces;
 
-// Include the API
-
-namespace StripSystem
+namespace JoinPartFilter
 {
     public class Filter : IPlugin // Reference this is a plugin
     {
-        public IPluginHost Host { get; set; }
+        private IPluginHost _host;
 
-        public string Name => "Join-Part Filter";
+        public string PluginName => "Join-Part Filter";
 
-        public string Description => "Filters join/part messages.";
+        public string PluginDescription => "Filters join/part messages.";
 
-        public string Author => "Xesyto";    
-        public string Version => "4";      
-        public string Email => "s.oudenaarden@gmail.com";
+        public string PluginAuthor => "Xesyto";    
+        public string PluginVersion => "4";      
+        public string PluginEmail => "s.oudenaarden@gmail.com";
                
-        private Dictionary<string, UserData> userDatabase;
+        private readonly Dictionary<string, UserData> _userDatabase;
         private readonly string ColourCode = "8"; //ascii char 3 is included at the start of this string but not clearly visible in VS Editor
 
         public Filter()
         {
-            userDatabase = new Dictionary<string, UserData>();
+            _userDatabase = new Dictionary<string, UserData>();
         }
 
-        public void Initialize()
+        public void Initialize(IPluginHost host)
         {
             // This is called when the plugin is loaded
             // Suscribe to delegates here
 
-            Host.OnChannelJoin += OnChannelJoin;
-            Host.OnChannelPart += OnChannelPart;
-            Host.OnQuit += OnQuit;
-            Host.OnChannelNormalMessage += OnChannelNormalMessage;
-            Host.OnNick += OnNick;
-            Host.OnChannelMode += OnChannelMode;
+            _host = host;
+
+            _host.OnChannelJoin += OnChannelJoin;
+            _host.OnChannelPart += OnChannelPart;
+            _host.OnQuit += OnQuit;
+            _host.OnChannelNormalMessage += OnChannelNormalMessage;
+            _host.OnNick += OnNick;
+            _host.OnChannelMode += OnChannelMode;
         }
 
         private void OnChannelNormalMessage(ChannelNormalMessageArgs argument)
@@ -53,25 +53,20 @@ namespace StripSystem
 
             var userKey = argument.Server.Network + argument.Channel.Name + argument.User.Host;
 
-            if (!userDatabase.ContainsKey(userKey))
+            if (!_userDatabase.ContainsKey(userKey))
             {
                 var newData = new UserData { AnnouncedJoin = true, LastMessage = DateTime.Now };
-                userDatabase.Add(userKey, newData);
+                _userDatabase.Add(userKey, newData);
             }
             else
             {
-                var userData = userDatabase[userKey];
+                var userData = _userDatabase[userKey];
 
                 if (!userData.AnnouncedJoin)
                 {
-                    var user = argument.User;
-                    var channel = argument.Channel;
-                    var message = argument.Message;
 
-                    var newMessage = $":{user.Nick}!{user.Ident}@{user.Host} PRIVMSG {channel.Name} :{message} {ColourCode}(logged in {userData.TimeSinceJoin()} ago)";
-                    argument.Server.SendFakeRaw(newMessage);
-                    argument.EatData = EatData.EatText;
-
+                    argument.Message += $" {ColourCode}(logged in {userData.TimeSinceJoin()} ago)";
+                    
                     userData.AnnouncedJoin = true;
                 }
 
@@ -85,9 +80,9 @@ namespace StripSystem
 
             var userKey = argument.Server.Network + argument.Channel.Name + argument.User.Host;
 
-            if (userDatabase.ContainsKey(userKey))
+            if (_userDatabase.ContainsKey(userKey))
             {
-                var userData = userDatabase[userKey];
+                var userData = _userDatabase[userKey];
                 if (userData.TalkedRecently())
                 {
                     argument.EatData = EatData.EatNone;
@@ -98,7 +93,7 @@ namespace StripSystem
             {
                 var userData = new UserData { Joined = DateTime.Now };
 
-                userDatabase.Add(userKey, userData);
+                _userDatabase.Add(userKey, userData);
             }
         }
 
@@ -108,9 +103,9 @@ namespace StripSystem
 
             var userKey = argument.Server.Network + argument.Channel.Name + argument.User.Host;
 
-            if (!userDatabase.ContainsKey(userKey)) return;
+            if (!_userDatabase.ContainsKey(userKey)) return;
 
-            var userData = userDatabase[userKey];
+            var userData = _userDatabase[userKey];
             if (userData.TalkedRecently())
             {
                 argument.EatData = EatData.EatNone;
@@ -125,9 +120,9 @@ namespace StripSystem
             {
                 var userKey = argument.Server + channel.Name + argument.User.Ident + argument.User.Host;
 
-                if (!userDatabase.ContainsKey(userKey)) continue;
+                if (!_userDatabase.ContainsKey(userKey)) continue;
 
-                var userData = userDatabase[userKey];
+                var userData = _userDatabase[userKey];
                 if (!userData.TalkedRecently()) continue;
 
                 argument.EatData = EatData.EatNone;
@@ -137,18 +132,18 @@ namespace StripSystem
 
         private void OnNick(NickArgs argument)
         {
-            //argument.EatData = EatData.EatAll;
+            argument.EatData = EatData.EatAll;
             
             foreach (IChannel channel in argument.Server.GetChannels)
             {
                 var userKey = argument.Server + channel.Name + argument.User.Ident + argument.User.Host;
 
-                if (!userDatabase.ContainsKey(userKey)) continue;
+                if (!_userDatabase.ContainsKey(userKey)) continue;
 
-                var userData = userDatabase[userKey];
+                var userData = _userDatabase[userKey];
                 if (!userData.TalkedRecently()) continue;
 
-                //argument.EatData = EatData.EatNone;
+                argument.EatData = EatData.EatNone;
                 return;
             }
         }
@@ -197,9 +192,9 @@ namespace StripSystem
             argument.EatData = EatData.EatText;
             var userKey = argument.Server.Network + argument.Channel.Name + user.Ident + user.Host;
 
-            if (!userDatabase.ContainsKey(userKey)) return;
+            if (!_userDatabase.ContainsKey(userKey)) return;
 
-            var userData = userDatabase[userKey];
+            var userData = _userDatabase[userKey];
             if (userData.TalkedRecently())
             {
                 argument.EatData = EatData.EatNone;
