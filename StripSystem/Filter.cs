@@ -42,7 +42,7 @@ namespace JoinPartFilter
             _host.OnQuit += OnQuit;
             _host.OnChannelNormalMessage += OnChannelNormalMessage;
             _host.OnNick += OnNick;
-            _host.OnChannelMode += OnChannelMode;
+            _host.OnChannelRawMode += OnChannelRawMode;            
         }
 
         private void OnChannelNormalMessage(ChannelNormalMessageArgs argument)
@@ -150,10 +150,10 @@ namespace JoinPartFilter
             }
         }
 
-        private void OnChannelMode(ChannelModeArgs argument)
-        {
+        private void OnChannelRawMode(ChannelRawModeArgs argument)
+        {           
             var user = argument.User;
-            var mode = argument.Mode;
+            var mode = argument.Modes;
 
             if (string.IsNullOrEmpty(user?.Ident))
             {
@@ -168,7 +168,7 @@ namespace JoinPartFilter
                 }
                 else
                 {
-                    argument.EatData = EatData.EatNone;
+                    argument.EatData = EatData.EatNone;                    
                     return;
                 }
 
@@ -185,22 +185,23 @@ namespace JoinPartFilter
                     //Twitch has a nasty habit of showing mode removal after a user has left the channel. 
                     if (!argument.Server.Network.ToLower().Contains("twitch"))
                     {
-                        argument.EatData = EatData.EatNone;
+                        argument.EatData = EatData.EatNone;                        
                         return;
                     }
                 }
             }
 
-            argument.EatData = EatData.EatText;
-            var userKey = argument.Server.Network + argument.Channel.Name + user.Ident + user.Host;
+            argument.EatData = EatData.EatAll;
+            var userKey = argument.Server.Network + argument.Channel.Name + user.Host;
 
             if (!_userDatabase.ContainsKey(userKey)) return;
 
             var userData = _userDatabase[userKey];
             if (userData.TalkedRecently())
-            {
+            {               
                 argument.EatData = EatData.EatNone;
             }
+            
         }
         
         public void Dispose()
