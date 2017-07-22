@@ -119,9 +119,7 @@ namespace JoinPartFilter
             foreach (IChannel channel in argument.Server.GetChannels)
             {
                 var userKey = argument.Server.Network + channel.Name + argument.User.Host;
-
-                argument.Window.OutputText(userKey);
-
+               
                 if (!_userDatabase.ContainsKey(userKey)) continue;
                 
                 var userData = _userDatabase[userKey];
