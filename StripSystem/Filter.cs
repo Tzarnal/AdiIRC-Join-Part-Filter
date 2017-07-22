@@ -52,7 +52,7 @@ namespace JoinPartFilter
                 return;
 
             var userKey = argument.Server.Network + argument.Channel.Name + argument.User.Host;
-
+            
             if (!_userDatabase.ContainsKey(userKey))
             {
                 var newData = new UserData { AnnouncedJoin = true, LastMessage = DateTime.Now };
@@ -113,38 +113,42 @@ namespace JoinPartFilter
         }
 
         private void OnQuit(QuitArgs argument)
-        {
+        {                        
             argument.EatData = EatData.EatText;
 
             foreach (IChannel channel in argument.Server.GetChannels)
             {
-                var userKey = argument.Server + channel.Name + argument.User.Ident + argument.User.Host;
+                var userKey = argument.Server.Network + channel.Name + argument.User.Host;
+
+                argument.Window.OutputText(userKey);
 
                 if (!_userDatabase.ContainsKey(userKey)) continue;
-
+                
                 var userData = _userDatabase[userKey];
-                if (!userData.TalkedRecently()) continue;
-
-                argument.EatData = EatData.EatNone;
-                return;
+                if (userData.TalkedRecently())
+                {                    
+                    argument.EatData = EatData.EatNone;
+                    return;
+                }                
             }
         }
 
         private void OnNick(NickArgs argument)
         {
-            argument.EatData = EatData.EatAll;
+            argument.EatData = EatData.EatText;
             
             foreach (IChannel channel in argument.Server.GetChannels)
             {
-                var userKey = argument.Server + channel.Name + argument.User.Ident + argument.User.Host;
+                var userKey = argument.Server.Network + channel.Name + argument.User.Host;
 
                 if (!_userDatabase.ContainsKey(userKey)) continue;
-
+                
                 var userData = _userDatabase[userKey];
-                if (!userData.TalkedRecently()) continue;
-
-                argument.EatData = EatData.EatNone;
-                return;
+                if (userData.TalkedRecently())
+                {                    
+                    argument.EatData = EatData.EatNone;
+                    return;
+                }
             }
         }
 
