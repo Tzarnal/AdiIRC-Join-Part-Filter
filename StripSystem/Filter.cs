@@ -46,7 +46,7 @@ namespace JoinPartFilter
         }
 
         private void OnChannelNormalMessage(ChannelNormalMessageArgs argument)
-        {                        
+        {            
             //sometimes ( mostly twitch ) user ident or host is not yet known even though a message was received
             if (argument.User == null || argument.User.Ident == null || argument.User.Host == null)
                 return;
@@ -54,7 +54,7 @@ namespace JoinPartFilter
             var userKey = argument.Server.Network + argument.Channel.Name + argument.User.Host;
             
             if (!_userDatabase.ContainsKey(userKey))
-            {
+            {                
                 var newData = new UserData { AnnouncedJoin = true, LastMessage = DateTime.Now };
                 _userDatabase.Add(userKey, newData);
             }
@@ -63,15 +63,14 @@ namespace JoinPartFilter
                 var userData = _userDatabase[userKey];
 
                 if (!userData.AnnouncedJoin)
-                {
-
+                {                    
                     argument.Message += $" {ColourCode}(logged in {userData.TimeSinceJoin()} ago)";
                     
                     userData.AnnouncedJoin = true;
                 }
 
                 userData.LastMessage = DateTime.Now;
-            }
+            }            
         }
 
         private void OnChannelJoin(ChannelJoinArgs argument)
@@ -191,7 +190,7 @@ namespace JoinPartFilter
                 }
             }
 
-            argument.EatData = EatData.EatAll;
+            argument.EatData = EatData.EatText;
             var userKey = argument.Server.Network + argument.Channel.Name + user.Host;
 
             if (!_userDatabase.ContainsKey(userKey)) return;
