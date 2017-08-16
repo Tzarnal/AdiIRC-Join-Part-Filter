@@ -51,7 +51,7 @@ namespace JoinPartFilter
             if (argument.User == null || argument.User.Ident == null || argument.User.Host == null)
                 return;
             
-            var userKey = argument.Server.Network + argument.Channel.Name + argument.User.Host;
+            var userKey = argument.Channel.Server.Network + argument.Channel.Name + argument.User.Host;
                         
             if (!_userDatabase.ContainsKey(userKey))
             {
@@ -83,7 +83,7 @@ namespace JoinPartFilter
         {
             argument.EatData = EatData.EatText;
 
-            var userKey = argument.Server.Network + argument.Channel.Name + argument.User.Host;
+            var userKey = argument.Channel.Server.Network + argument.Channel.Name + argument.User.Host;
 
             if (_userDatabase.ContainsKey(userKey))
             {
@@ -109,7 +109,7 @@ namespace JoinPartFilter
         {
             argument.EatData = EatData.EatText;
 
-            var userKey = argument.Server.Network + argument.Channel.Name + argument.User.Host;
+            var userKey = argument.Channel.Server.Network + argument.Channel.Name + argument.User.Host;
 
             //if the user is leaving but we don't know about the user yet don't show the PART message and do nothing else
             if (!_userDatabase.ContainsKey(userKey)) return;
@@ -213,7 +213,7 @@ namespace JoinPartFilter
                 if (string.IsNullOrEmpty(user?.Ident))
                 {
                     //Twitch has a nasty habit of showing mode removal after a user has left the channel. 
-                    if (!argument.Server.Network.ToLower().Contains("twitch"))
+                    if (!argument.Channel.Server.Network.ToLower().Contains("twitch"))
                     {
                         argument.EatData = EatData.EatText;                        
                         return;
@@ -222,7 +222,7 @@ namespace JoinPartFilter
             }
 
             argument.EatData = EatData.EatText;
-            var userKey = argument.Server.Network + argument.Channel.Name + user.Host;
+            var userKey = argument.Channel.Server.Network + argument.Channel.Name + user.Host;
 
             if (!_userDatabase.ContainsKey(userKey)) return;
 
