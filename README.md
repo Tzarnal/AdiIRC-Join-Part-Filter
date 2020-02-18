@@ -1,3 +1,7 @@
+Unsuported
+=============
+I've stopped using irc in general and as such I'm no longer supporting this plugin.
+
 AdiIRC Join/Part Filter
 =============
 This is a .net plugin for AdiIRC.
